@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!--Material Color-->
+    <material name="white">
+        <color rgba="1 1 1 1" />
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1" />
+    </material>
+
+    <material name="blue">
+        <color rgba="0 0 1 1" />
+    </material>
+
+    <material name="grey">
+        <color rgba="0.5 0.5 0.5 1" />
+    </material>
+
+    <!--Links-->
+        <!--Drone's Frame Link-->
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://my_robot_description/stl/WholeDrone.STL" scale="0.008 0.008 0.008"/>
+            </geometry>
+            <origin xyz="0.56 -0.8275 -0.425" rpy="${pi/2} 0 ${pi}" />
+            <material name="white" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="1.5 1.5 0.3" />
+            </geometry>
+            <origin xyz="0 0 0.15" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.15"/>
+            <inertia ixx="2.01E-05" ixy="6.77E-08" ixz="8.16E-08" 
+                    iyy="2.93E-05" iyz="8.47E-10" 
+                    izz="4.86E-05"/>
+        </inertial>
+    </link>
+        <!--Xacro for Propellers-->
+    <xacro:macro name="propeller_link" params="prefix">
+        <link name="${prefix}_propeller_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://my_robot_description/stl/PropellerForRos.STL" scale="0.008 0.008 0.008"/>
+                </geometry>
+                <origin xyz="-0.269 0.3874 -0.2" rpy="${pi/2} 0 0.0"/>
+                <material name="black" />
+            </visual>
+            <!-- <collision>
+                <geometry>
+                    <cylinder radius="0.3" length="0.05"/>
+                </geometry>
+                <origin xyz="0.0 0.0 0.8" rpy="0.0 0.0 0.0"/>
+            </collision> -->
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <mass value="0.05"/>
+                <inertia ixx="6.38E-05" ixy="-1.31E-06" ixz="2E-06" 
+                        iyy="7.65E-05" iyz="8.55E-07" 
+                        izz="0.000121"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+        <!--Placements of 4 Propellers-->
+    <xacro:propeller_link prefix="front_right" />
+    <xacro:propeller_link prefix="front_left" />
+    <xacro:propeller_link prefix="back_right" />
+    <xacro:propeller_link prefix="back_left" />
+
+    <!--Base Footprint link & Joint-->
+    <link name="base_footprint" />
+
+    <joint name="base_join" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </joint>
+    
+    <!--Joints-->
+         <!--Frame and Front Right Proppeller-->
+    <joint name="base_front_right_propeller_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="front_right_propeller_link" />
+        <origin xyz="-0.444 -0.444 0.2" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+    </joint>
+        <!--Frame and Front Left Proppeller-->
+    <joint name="base_front_left_propeller_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="front_left_propeller_link" />
+        <origin xyz="0.451 -0.445 0.2" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+    </joint>
+        <!--Frame and Back Right Proppeller-->
+    <joint name="base_back_right_propeller_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="back_right_propeller_link" />
+        <origin xyz="-0.4482 0.455 0.2" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+    </joint>
+        <!--Frame and Back Left Proppeller-->
+    <joint name="base_back_left_propeller_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="back_left_propeller_link" />
+        <origin xyz="0.457 0.457 0.2" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+    </joint>
+    
+    <!--Gazebo Section-->
+    <gazebo>
+        <sensor name="my_imu" type="imu">
+        <always_on>true</always_on>
+        <update_rate>50</update_rate>
+        <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+            <ros>
+            <namespace>/imu</namespace>
+            <remapping>~/out:=data</remapping>
+            </ros>
+        </plugin>
+        </sensor>
+    </gazebo>
+
+</robot>
